@@ -1,6 +1,3 @@
-"""
-Aplicación para adiviar un numero
-"""
 import random
 
 def player_guess(secret_number):
