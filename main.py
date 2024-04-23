@@ -1,23 +1,16 @@
 import random
 
-def get_player_guess(round):
-    """Permite al usuario ingresar un valor y retorna ese valor"""
-    player_guess = None
 
-    while player_guess == None:
-        try:
-            player_guess = int(
-                input(f"--- Round {round}: Player 1 ---\nPlayer 1, enter your guess: ")
-            )
-        except:
-            print("Enter a correct number\n")
+def get_player_guess():
+    """Permite al usuario ingresar un valor y retorna ese valor"""
+    player_guess = int(input("Enter a guess: "))
 
     return player_guess
 
 
-def get_computer_guess(lower_bound, upper_bound, round_count):
+def get_computer_guess(lower_bound, upper_bound):
     """Retorna una decisión tomando el punto medio de un rango"""
-    mid_guess = round((lower_bound + upper_bound) / 2)
+    mid_guess = (lower_bound + upper_bound) // 2
     return mid_guess
 
 
@@ -31,15 +24,15 @@ def check_number(secret_number, guess):
         return "lower"
 
 
-def updated_bound(player_guess, result):
+def get_updated_bound(guess, result):
     """Función para actualizar los randos de elección según los resultados"""
     if result == "higher":
-        return player_guess + 1
+        return guess + 1
     else:
-        return player_guess - 1
+        return guess - 1
 
 
-def show_result(round_count, player_tries, computer_tries):
+def show_results(round_count, player_tries, computer_tries):
     """Función que muestra todas las elecciones hechas durante el juego"""
     print("--- Results ---\nThis is the results in the game:")
     print(f"In Total was {round_count} rounds\n")
@@ -48,8 +41,22 @@ def show_result(round_count, player_tries, computer_tries):
         print(f"Player choose: {player_tries[_round]}")
         try:
             print(f"Computer choose: {computer_tries[_round]}\n")
-        except:
-            print("Computer did not make any choice in this round\n")
+        except IndexError:
+            print("Computer do not make move in this round")
+
+def show_round(round_count, player_guess, player):
+    print(f"--- Round {round_count}: {player} ---\n{player} guess is: {player_guess}")
+
+
+def show_round_result(result, secret_number):
+    if result == "correct":
+        print(
+            f"Congratulation! You won the game the secret numbre is {secret_number}\n"
+        )
+    elif result == "higher":
+        print("Sorry! too low\n")
+    else:
+        print("Sorry! too high\n")
 
 
 def main():
@@ -65,46 +72,33 @@ def main():
     # El loop se repetirá hasta que la variable is_finished sea verdadera
     while not is_finished:
         if is_player_turn:
-
-            player_guess = get_player_guess(round_count)
-            player_tries.append(player_guess)
-            result = check_number(secret_number, player_guess)
-
-            if result == "correct":
-                print(
-                    f"Congratulation! You won the game the secret numbre is {secret_number}\n"
-                )
-                is_finished = True
-                show_result(round_count, player_tries, computer_tries)
-            elif result == "higher":
-                print("Sorry! too low\n")
-                lower_bound = updated_bound(player_guess, result)
-            else:
-                print("Sorry! too high\n")
-                upper_bound = updated_bound(player_guess, result)
+            guess = None
+            while guess is None:
+                try:
+                    guess = get_player_guess()
+                except ValueError:
+                    print("Ingresa un numero entero")
+            show_round(round_count, guess, "player 1")
+            player_tries.append(guess)
+            result = check_number(secret_number, guess)
+            show_round_result(result, secret_number)
+            
         else:
-
-            computer_guess = get_computer_guess(lower_bound, upper_bound, round_count)
-            print(
-                f"--- Round {round_count}: Computer ---\nComputer guess is: {computer_guess}"
-            )
-            computer_tries.append(computer_guess)
-            result = check_number(secret_number, computer_guess)
-
-            if result == "correct":
-                print(
-                    f"Sorry! Computer won the game, the secret numbre is {secret_number}\n"
-                )
-                is_finished = True
-                show_result(round_count, player_tries, computer_tries)
-            elif result == "higher":
-                print("Computer guess was too low\n")
-                lower_bound = updated_bound(computer_guess, result)
-            else:
-                print("Computer guess was too high\n")
-                upper_bound = updated_bound(computer_guess, result)
-
+            guess = get_computer_guess(lower_bound, upper_bound)
+            show_round(round_count, guess, "Computer")
+            computer_tries.append(guess)
+            result = check_number(secret_number, guess)
+            show_round_result(result, secret_number)
             round_count += 1
+
+        if result == "correct":
+            is_finished = True
+            show_results(round_count, player_tries, computer_tries)
+        elif result == "higher":
+            lower_bound = get_updated_bound(guess, result)
+        else:
+            upper_bound = get_updated_bound(guess, result)
+
         is_player_turn = not is_player_turn
 
 
