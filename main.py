@@ -1,5 +1,7 @@
 import random
 
+def get_secret_number():
+    return random.randint(1, 100)
 
 def get_player_guess():
     """Permite al usuario ingresar un valor y retorna ese valor"""
@@ -59,8 +61,8 @@ def show_round_result(result, secret_number):
         print("Sorry! too high\n")
 
 
-def main():
-    secret_number = random.randint(1, 100)
+def game():
+    secret_number = get_secret_number()
     is_player_turn = True
     is_finished = False
     lower_bound = 1
@@ -103,4 +105,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+   game()
